@@ -13,6 +13,11 @@ class LayerDense:
     def forward(self, inputs):
         self.output = np.dot(inputs, self.weights) + self.biases
         
+class ActivationReLU:
+    def forward(self, inputs):
+        #ReLU is 0 if num is <= 0 but num if num > 0
+        self.output = np.maximum(0, inputs)
+        
 layer1 = LayerDense(4, 5)
 layer2 = LayerDense(5, 2)
 layer1.forward(X)
