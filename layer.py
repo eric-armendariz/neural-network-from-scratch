@@ -4,13 +4,6 @@ from nnfs.datasets import spiral_data
 
 nnfs.init()
 
-# Each list represents connections to a neuron from prev layer of neurons
-#X = [[1, 2, 3, 2.5],
-    #[2.0, 5.0, -1.0, 2.0],
-    #[-1.5, 2.7, 3.3, -0.8]]
-    
-X, y = spiral_data(100, 3)
-
 class LayerDense:
     def __init__(self, n_inputs, n_neurons):
         self.weights = 0.1 * np.random.randn(n_inputs, n_neurons)
@@ -19,13 +12,30 @@ class LayerDense:
     def forward(self, inputs):
         self.output = np.dot(inputs, self.weights) + self.biases
         
-class ActivationReLU:
+class ReLUActivation:
     def forward(self, inputs):
         #ReLU is 0 if num is <= 0 but num if num > 0
         #Activation function is used to be able to fix non-linear functions
         self.output = np.maximum(0, inputs)
         
-layer1 = LayerDense(2, 5)
-activation1 = ActivationReLU()
-layer1.forward(X)
-activation1.forward(layer1.output)
+class SoftmaxActivation:
+    def forward(self, inputs):
+        # e**x for all batches of inputs
+        # subtracted from max of its batch to normalize vals between 0 and 1
+        exp_values = np.exp(inputs - np.max(inputs, axis=1, keepdims=True))
+        
+        # divide each element by sum of its batch, creates probability distribution
+        self.output = exp_values / np.sum(exp_values, axis=1, keepdims=True)
+        
+X, y = spiral_data(samples=100, classes=3)
+
+dense1 = LayerDense(2, 3)
+activation1 = ReLUActivation()
+dense2 = LayerDense(3, 3)
+activation2 = SoftmaxActivation()
+
+dense1.forward(X)
+activation1.forward(dense1.output)
+dense2.forward(activation1.output)
+activation2.forward(dense2.output)
+print(activation2.output)
